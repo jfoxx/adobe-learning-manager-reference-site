@@ -15,8 +15,10 @@ import { PrimeCommunityObjectActions } from "../PrimeCommunityObjectActions";
 import { PrimeCommunityObjectInput } from "../PrimeCommunityObjectInput";
 import { PrimeCommunityReplies } from "../PrimeCommunityReplies";
 import { useIntl } from "react-intl";
+import { useSelector } from "react-redux";
 import { useComment, useReplies } from "../../../hooks/community";
 import { useRef, useEffect, useState } from "react";
+import { State } from "../../../store/state";
 import styles from "./PrimeCommunityComment.module.css";
 import {
   COMMENT,
@@ -26,11 +28,16 @@ import {
   UP,
   UPVOTE,
 } from "../../../utils/constants";
+import { formatMention, processMention } from "../../../utils/mentionUtils";
 
 const PrimeCommunityComment = (props: any) => {
   const { formatMessage } = useIntl();
   const ref = useRef<any>();
-  const comment = props.comment;
+  let comment = useSelector((state: State) => state.social.comments.items.find((item: any) => item.id === props.comment.id)) as any;
+  if(!comment) {
+    comment = props.comment;
+  }
+  const {userMentions} = comment;
   const parentPost = props.parentPost;
   const { voteComment, deleteCommentVote } = useComment();
   const { addReply, fetchReplies } = useReplies(comment.id);
@@ -57,6 +64,7 @@ const PrimeCommunityComment = (props: any) => {
   const [replyCount, setReplyCount] = useState(comment.replyCount);
   const [showEditCommentView, setShowEditCommentView] = useState(false);
   const [commentText, setCommentText] = useState(comment.richText);
+  const processedCommentText = processMention(commentText, userMentions || []);
 
   const viewButtonClickHandler = () => {
     if (!showReplies) {
@@ -133,7 +141,8 @@ const PrimeCommunityComment = (props: any) => {
 
   const saveReplyHandler = async (value: any) => {
     try {
-      await addReply(comment.id, value);
+      const formattedValue = formatMention(value);
+      await addReply(comment.id, formattedValue);
       setReplyCount(replyCount + 1);
       fetchReplies(comment.id);
       showReplySection();
@@ -142,9 +151,11 @@ const PrimeCommunityComment = (props: any) => {
     }
   };
 
-  const updateComment = (value: any) => {
+  const updateComment = async (value: any) => {
     if (typeof props.updateComment === "function") {
-      props.updateComment(comment.id, value);
+      const formattedValue = formatMention(value);
+      await props.updateComment(comment.id, formattedValue);
+      // update the comment without formatted text, it will go through redux and come back with the formatted text
       setCommentText(value);
       setShowEditCommentView(false);
     }
@@ -239,7 +250,7 @@ const PrimeCommunityComment = (props: any) => {
             id: "alm.community.comment.commentHere",
             defaultMessage: "Comment here",
           })}
-          defaultValue={comment.richText}
+          defaultValue={processedCommentText}
           primaryActionHandler={(value: any) => updateComment(value)}
           secondaryActionHandler={() => setShowEditCommentView(false)}
           concisedToolbarOptions={true}

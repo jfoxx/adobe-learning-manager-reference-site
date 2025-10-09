@@ -50,7 +50,7 @@ const PrimeCommunityBoard = (props: any) => {
   const ref = useRef<any>();
 
   const boardSkills = board.skills?.map((skill: any, index: any) => {
-    return (index ? ", " : "") + skill.name;
+    return (index ? ", " : "") + (skill.name || '');
   });
 
   useEffect(() => {
@@ -304,7 +304,7 @@ const PrimeCommunityBoard = (props: any) => {
                 {board.createdBy.name !== ""
                   ? board.createdBy.name
                   : formatMessage({
-                      id: "alm.community.board.anoymous.label",
+                      id: "alm.community.board.anonymous.label",
                       defaultMessage: "Anonymous",
                     })}
               </span>

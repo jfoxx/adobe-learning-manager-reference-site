@@ -32,6 +32,7 @@ import {
 import { cancelUploadFile, uploadFile } from "../../../utils/uploadUtils";
 import { PrimeCommunityObjectInput } from "../PrimeCommunityObjectInput";
 import styles from "./PrimeCommunityAddPostDialog.module.css";
+import { formatMention, processMention } from "../../../utils/mentionUtils";
 
 const PrimeCommunityAddPostDialog = (props: any) => {
   const ref = useRef<any>();
@@ -46,7 +47,24 @@ const PrimeCommunityAddPostDialog = (props: any) => {
   const [pollTypeSelected, setPollTypeSelected] = useState(false);
 
   const isInputFilled = () => {
-    return ref?.current?.value?.trim() !== "" ? true : false;
+    if (!ref?.current) return false;
+    
+    // Check if it's a Quill editor instance
+    if (typeof ref.current.getSemanticHTML === 'function') {
+      const html = ref.current.getSemanticHTML();
+      // Remove HTML tags and check if there's meaningful content
+      const textContent = html.replace(/<[^>]*>/g, '').trim();
+      // Also check if there are mentions (even if no text)
+      const hasMentions = html.includes('ql-mention');
+      return textContent !== "" || hasMentions;
+    }
+    
+    // Check if it's a standard HTML input/textarea element
+    if (ref.current.value !== undefined) {
+      return ref.current.value.trim() !== "";
+    }
+    
+    return false;
   };
 
   const [saveEnabled, setSaveEnabled] = useState(isInputFilled());
@@ -59,6 +77,13 @@ const PrimeCommunityAddPostDialog = (props: any) => {
   const COMMENT_CHAR_LIMIT = 4000;
   const [resource, setResource] = useState({});
   const [isResourceModified, setIsResourceModified] = useState(false);
+  let processedDescription = props.description;
+  const boardId = props.boardId;
+  if(props?.post){
+    const { userMentions } = props.post;
+    const description = props.description || "";
+    processedDescription = processMention(description, userMentions || []);
+  }
 
   useEffect(() => {
     if (props.mode === UPDATE) {
@@ -118,13 +143,15 @@ const PrimeCommunityAddPostDialog = (props: any) => {
   };
 
   const savePostHandler = (close: any) => {
-    if (ref.current.value === "") {
+    const postText = ref.current.getSemanticHTML();
+    if (postText === "") {
       return;
     }
+    const formattedPostText = formatMention(postText);
     if (typeof props.saveHandler === "function") {
       props.saveHandler(
         close,
-        ref.current.value,
+        formattedPostText,
         postingType,
         resource,
         isResourceModified,
@@ -266,14 +293,16 @@ const PrimeCommunityAddPostDialog = (props: any) => {
             defaultMessage: "Write or paste something here...",
           })}
           characterLimit={COMMENT_CHAR_LIMIT}
-          defaultValue={props.description}
+          defaultValue={processedDescription}
           enablePrimaryAction={() => {
-            enableSaveButton();
+            setSaveEnabled(isInputFilled());
           }}
           disablePrimaryAction={() => {
-            setSaveEnabled(false);
+            setSaveEnabled(isInputFilled());
           }}
           concisedToolbarOptions={false}
+          object={props.post}
+          boardId={boardId}
         ></PrimeCommunityObjectInput>
         {textMode && (
           <div className={styles.primeOptionsArea}>

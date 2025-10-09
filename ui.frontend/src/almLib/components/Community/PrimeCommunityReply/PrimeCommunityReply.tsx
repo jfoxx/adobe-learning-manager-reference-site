@@ -15,14 +15,21 @@ import { PrimeCommunityObjectActions } from "../PrimeCommunityObjectActions";
 import { PrimeCommunityObjectInput } from "../PrimeCommunityObjectInput";
 import { useReply } from "../../../hooks/community";
 import { useRef, useEffect, useState } from "react";
-import styles from "./PrimeCommunityReply.module.css";
 import { useIntl } from "react-intl";
 import { DOWN, DOWNVOTE, REPLY, UP, UPVOTE } from "../../../utils/constants";
+import { formatMention, processMention } from "../../../utils/mentionUtils";
+import { useSelector } from "react-redux";
+import { State } from "../../../store/state";
+import styles from "./PrimeCommunityReply.module.css";
 
 const PrimeCommunityReply = (props: any) => {
   const { formatMessage } = useIntl();
   const ref = useRef<any>();
-  const reply = props.reply;
+  let reply = useSelector((state: State) => state.social.replies.items.find((item: any) => item.id === props.reply.id)) as any;
+  if(!reply) {
+    reply = props.reply;
+  }
+  const { userMentions } = reply;
   const { voteReply, deleteReplyVote } = useReply();
   const myVoteStatus = reply.myVoteStatus ? reply.myVoteStatus : "";
   const [myUpVoteStatus, setMyUpVoteStatus] = useState(myVoteStatus === UPVOTE);
@@ -35,6 +42,7 @@ const PrimeCommunityReply = (props: any) => {
   const firstRunForDownvote = useRef(true);
   const [showEditReplyView, setShowEditReplyView] = useState(false);
   const [replyText, setReplyText] = useState(reply.richText);
+  const processedReplyText = processMention(replyText, userMentions || []);
 
   useEffect(() => {
     if (firstRunForUpvote.current) {
@@ -82,9 +90,11 @@ const PrimeCommunityReply = (props: any) => {
     }
   };
 
-  const updateReply = (value: any) => {
+  const updateReply = async (value: any) => {
+    const formattedValue = formatMention(value);
     if (typeof props.updateReply === "function") {
-      props.updateReply(reply.id, value);
+      await props.updateReply(reply.id, formattedValue);
+      // update the reply without formatted text, it will go through redux and come back with the formatted text
       setReplyText(value);
       setShowEditReplyView(false);
     }
@@ -128,7 +138,7 @@ const PrimeCommunityReply = (props: any) => {
             id: "alm.community.comment.replyHere",
             defaultMessage: "Reply here",
           })}
-          defaultValue={reply.richText}
+          defaultValue={processedReplyText}
           primaryActionHandler={(value: any) => updateReply(value)}
           secondaryActionHandler={() => setShowEditReplyView(false)}
           concisedToolbarOptions={true}
