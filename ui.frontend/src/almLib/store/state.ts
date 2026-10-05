@@ -9,15 +9,21 @@ the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTA
 OF ANY KIND, either express or implied. See the License for the specific language
 governing permissions and limitations under the License.
 */
-import { PrimeAccount, PrimeUser } from "../models/PrimeModels";
-import { CatalogState } from "./reducers/catalog";
-import { NotificationState } from "./reducers/notification";
-import { SocialState } from "./reducers/social";
-import { FileUpload } from "./reducers/fileUpload";
-import { UserSkillInterestState } from "./reducers/userSkillInterest";
-import { SkillState } from "./reducers/skill";
-import { SearchState } from "./reducers/search";
-import { BadgeState } from "./reducers/badge";
+import { PrimeAccount, PrimeLearningObject, PrimeUser } from '../models/PrimeModels';
+import { CatalogState } from './reducers/catalog';
+import { NotificationState } from './reducers/notification';
+import { SocialState } from './reducers/social';
+import { FileUpload } from './reducers/fileUpload';
+import { UserSkillInterestState } from './reducers/userSkillInterest';
+import { SkillState } from './reducers/skill';
+import { SearchState } from './reducers/search';
+import { BadgeState } from './reducers/badge';
+import { UserRecommendationPreferenceState } from './reducers/userRecommendationPreference';
+import { RecommendationState } from './reducers/recommendation';
+import { authorState } from './reducers/author';
+import { AppState } from './reducers/appState';
+import { ChannelsState } from './reducers/channels';
+
 export interface Authentication {
   accessToken: string;
 }
@@ -34,4 +40,9 @@ export interface State {
   userSkillInterest: UserSkillInterestState;
   skill: SkillState;
   search: SearchState;
+  userRecommendationPreference: UserRecommendationPreferenceState;
+  recommendation: RecommendationState;
+  authorTrainings: authorState;
+  appState: AppState;
+  channels: ChannelsState;
 }

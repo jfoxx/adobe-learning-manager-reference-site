@@ -13,6 +13,7 @@ export interface PrimeAccount {
   id: string;
   _transient: any;
   catalogsVisible: boolean;
+  complianceLabelDefaultValueId: string;
   customDomain: string;
   dateCreated: string;
   disabledApps: Set<string>;
@@ -26,6 +27,7 @@ export interface PrimeAccount {
   enableSocialLearning: boolean;
   enableModulePreview: boolean;
   exploreSkills: boolean;
+  flexLPValidationsEnabled: boolean;
   gamificationEnabled: boolean;
   hideRetiredTrainings: boolean;
   instanceSwitchEnabled: boolean;
@@ -41,6 +43,7 @@ export interface PrimeAccount {
   name: string;
   pageSetting: string;
   recommendationAccountType: string;
+  showComplianceLabel: boolean;
   showEffectiveness: boolean;
   showRating: boolean;
   socialPostApprovalType: string;
@@ -50,7 +53,7 @@ export interface PrimeAccount {
   type: string;
   accountTerminologies: PrimeAccountTerminology[];
   contentLocales: PrimeLocalizationMetadata[];
-  filterPanelSetting: object;
+  filterPanelSetting: PrimeAccountFilterPanelSetting;
   gamificationLevels: PrimeGamificationLevel[];
   learnerHelpLinks: PrimeHelpLink[];
   timeZones: PrimeTimeZone[];
@@ -58,6 +61,65 @@ export interface PrimeAccount {
   enableECommerce: boolean;
   extensions: PrimeExtension[];
   expireSubmissionDuration?: number;
+  prlCriteria: PRLCriteria;
+  learnerCustomInjections: string;
+  multiItemCartEnabled: boolean;
+  viewType: string;
+  newFeedbackFormEnabled: boolean;
+  shouldPreReqConsiderPassStatus: boolean;
+  templatesEnabled: boolean;
+  templatesConfig?: string;
+  searchEnrolledChildLo?: boolean;
+  alternateCompletionEnabled?: boolean;
+  enableExternalLearning?: boolean;
+  hasExternalLearningSubmissions?: boolean;
+  enableAiCoach?: boolean;
+  gradebookVisibleLearner?: boolean;
+  structuredLocationEnabled?: boolean;
+  evcEnabled?: boolean;
+  personalizedPathEnabled?: boolean;
+  enableCreditDuration?: boolean;
+}
+
+export interface CssInjection {
+  tileColors: string[];
+  homePageBackgroundImage: string;
+  homePageBackgroundColor: string;
+  fonts: FontInjection;
+  cursorImage: string;
+  loaderImage: string;
+}
+
+export interface FontInjection {
+  fontName: string;
+  fontFace: string;
+}
+
+export interface PrimeAccountFilterPanelSetting {
+  catalog: boolean;
+  cities: boolean;
+  duration: boolean;
+  format: boolean;
+  price: boolean;
+  priceRange: boolean;
+  skill: boolean;
+  skillLevel: boolean;
+  tag: boolean;
+  type: boolean;
+  groups: boolean;
+  recommendationLevel: boolean;
+  recommendationProduct: boolean;
+  recommendationRole: boolean;
+}
+
+export interface PRLCriteria {
+  enabled: boolean;
+  products: PRLCriteriaAttributes;
+  roles: PRLCriteriaAttributes;
+}
+export interface PRLCriteriaAttributes {
+  enabled: boolean;
+  levelsEnabled: boolean;
 }
 
 export interface PrimeAccountTerminology {
@@ -95,6 +157,27 @@ export interface PrimeAnnouncement {
   sentDate: string;
   sticky: boolean;
   thumbnailUrl: string;
+}
+
+export interface PrimeExternalLearningSubmissionField {
+  id: string;
+  value: any;
+  type: string;
+}
+
+export interface PrimeExternalLearningSubmission {
+  id: string;
+  _transient: any;
+  createdAt: string;
+  creationSource: string;
+  fields: PrimeExternalLearningSubmissionField[];
+  modifiedAt: string;
+  reviewedAt: string;
+  reviewerComment: string;
+  reviewerUserId?: { id: string };
+  status: string;
+  submissionUrl: string;
+  title: string;
 }
 
 export interface PrimeBadge {
@@ -140,6 +223,7 @@ export interface PrimeCatalog {
   name: string;
   state: string;
   type: string;
+  pageId?: string;
 }
 
 export interface PrimeCatalogLables {
@@ -190,7 +274,7 @@ export interface PrimeCommentMetaData {
 
 export interface PrimeCommentCreationAttributes {
   // resource: object;
-  state: "ACTIVE";
+  state: 'ACTIVE';
   text: string;
 }
 
@@ -282,6 +366,10 @@ export interface PrimeFeedbackQuestion {
   questionId: string;
   questionType: string;
   localizedMetadata: PrimeLocalizationMetadata[];
+  userResponseLocale: string;
+  rangeStart?: number;
+  rangeEnd?: number;
+  order?: number;
 }
 
 export interface PrimeFilterPanelSetting {
@@ -326,12 +414,12 @@ export interface PrimeJob {
 }
 
 export interface PrimeStatus {
-  code: string
-  data: PrimeUrl
+  code: string;
+  data: PrimeUrl;
 }
 
 export interface PrimeUrl {
-  s3Url: string
+  s3Url: string;
 }
 
 export interface PrimeLearnerAttemptInfo {
@@ -355,8 +443,10 @@ export interface PrimeLearningObject {
   duration: number;
   effectiveModifiedDate: string;
   effectivenessIndex: number;
+  effectivenessData: string;
   enrollmentType: string;
   externalSkillNames: string[];
+  completionDateSameAsApprovalDate: boolean;
   hasOptionalLoResources: boolean;
   imageUrl: string;
   instanceSwitchEnabled: boolean;
@@ -367,6 +457,7 @@ export interface PrimeLearningObject {
   isSubLoOrderEnforced: boolean;
   loFormat: string;
   loType: string;
+  loSubType: string;
   moduleResetEnabled: boolean;
   multienrollmentEnabled: boolean;
   rootCertificationId: string;
@@ -374,6 +465,8 @@ export interface PrimeLearningObject {
   tags: string[];
   type: string;
   unenrollmentAllowed: boolean;
+  authorDetails?: authorDetailsForLo[];
+  whoShouldTake?: string[];
   uniqueId: string;
   catalogLabels: PrimeCatalogLables[];
   localizedMetadata: PrimeLocalizationMetadata[];
@@ -393,11 +486,21 @@ export interface PrimeLearningObject {
   price: number;
   loResourceCompletionCount: number;
   isBookmarked: boolean;
+  showAggregatedResources: boolean;
   extensionOverrides?: PrimeExtensionOverride[];
-  // price?: {
-  //   currency: string;
-  //   value: number;
-  // };
+  products: Array<PrimeRecommendations>;
+  roles: Array<PrimeRecommendations>;
+  snippets: PrimeSearchSnippet[];
+  gracePeriod: number;
+  modulesMandatory: boolean;
+  downloadable: boolean;
+  isAlternateComplete: boolean;
+  alternateCompletions: PrimeLearningObject[];
+  gradebookEnabled?: boolean;
+  gradebookVisibleLearner?: boolean;
+  gradebookAllModules?: boolean;
+  gradebookPassingScore?: number | null;
+  createdByUserId?: number;
 }
 
 export interface PrimeLearningObjectInstance {
@@ -408,8 +511,10 @@ export interface PrimeLearningObjectInstance {
   enabledL1FeedbackForEachCourse: boolean;
   enrollmentDeadline: string;
   unenrollmentDeadline: string;
+  gamificationEnabled: boolean;
   isDefault: boolean;
   isFlexible: boolean;
+  isAET: boolean;
   seatLimit: number;
   state: string;
   type: string;
@@ -421,6 +526,13 @@ export interface PrimeLearningObjectInstance {
   loResources: PrimeLearningObjectResource[];
   subLoInstances: PrimeLearningObjectInstance[];
   enrollment: PrimeLearningObjectInstanceEnrollment;
+  locale: string;
+}
+
+export interface authorDetailsForLo {
+  authorId: string;
+  authorName: string;
+  authorType: string;
 }
 
 export interface PrimeLearningObjectInstanceEnrollment {
@@ -444,8 +556,10 @@ export interface PrimeLearningObjectInstanceEnrollment {
   learningObject: PrimeLearningObject;
   loInstance: PrimeLearningObjectInstance;
   loResourceGrades: PrimeLearningObjectResourceGrade[];
+  previousExpiryDate: string;
 }
 
+type ModuleScoring = 'HIGHEST' | 'LATEST';
 export interface MultipleAttempt {
   attemptDuration: number;
   attemptEndCriteria: string;
@@ -453,9 +567,10 @@ export interface MultipleAttempt {
   maxAttemptCount: number;
   stopAttemptOnSuccessfulComplete: boolean;
   timeBetweenAttempts: number;
+  moduleScoring?: ModuleScoring;
 }
 
-export interface LearnerAttemptInfo{
+export interface LearnerAttemptInfo {
   currentAttemptStartTime: string;
   currentAttemptEndTime: string;
   attemptsFinishedCount: number;
@@ -479,6 +594,7 @@ export interface PrimeLearningObjectResource {
   type: string;
   version: number;
   learnerAttemptInfo: LearnerAttemptInfo;
+  hasContentDrivenAttemptTracking: boolean;
   localizedMetadata: PrimeLocalizationMetadata[];
   multipleAttempt: MultipleAttempt;
   learningObject: PrimeLearningObject;
@@ -488,6 +604,22 @@ export interface PrimeLearningObjectResource {
   sessionRecordingInfo: PrimeSessionRecordingInfo[];
   isChecklistMandatory: boolean;
   isExpiredSubmission?: boolean;
+  vcHostingSystem: string;
+  vcConnectorId?: string;
+  timeSlot: PrimeModuleAccessLimit;
+  checklistComment?: string;
+  showChecklistComment?: boolean;
+  showReviewerNameToLearner?: boolean;
+  checklistReviewedBy?: PrimeUser;
+  submissionDate?: string;
+  /** course_module.weight — Module weight for weighted / gradebook scoring (0–100 per LLD). */
+  weight?: number | null;
+  creditDuration?: number | null;
+}
+
+export interface PrimeModuleAccessLimit {
+  startTime: string;
+  endTime: string;
 }
 
 export interface PrimeSessionRecordingInfo {
@@ -498,12 +630,14 @@ export interface PrimeSessionRecordingInfo {
   startTime: string;
   url: string;
   transcriptUrl: string;
+  isHidden?: boolean;
 }
 
 export interface PrimeLearningObjectResourceGrade {
   id: string;
   _transient: any;
   dateCompleted: string;
+  completed: boolean;
   dateStarted: string;
   dateSuccess: string;
   duration: number;
@@ -512,6 +646,8 @@ export interface PrimeLearningObjectResourceGrade {
   score: number;
   type: string;
   loResource: PrimeLearningObjectResource;
+  highestScore: number; // For multiple attempts, this is the highest score achieved
+  maxScore: number; // The maximum score possible for the resource
 }
 
 export interface PrimeLearningObjectSkill {
@@ -543,6 +679,7 @@ export interface PrimeLocalizationContentdata {
   contentUrl: string;
   locale: string;
   thumbnailUrl: string;
+  altText?: string;
 }
 
 export interface PrimeLocalizationMetadata {
@@ -592,6 +729,7 @@ export interface PrimeMultipleAttempt {
   maxAttemptCount: number;
   stopAttemptOnSuccessfulComplete: boolean;
   timeBetweenAttempts: number;
+  moduleScoring?: ModuleScoring;
 }
 
 export interface PrimeNote {
@@ -656,12 +794,12 @@ export interface PrimePostMetaData {
 }
 
 export interface PrimePostCreationAttributes {
-  postingType: "DEFAULT" | "QUESTION" | "POLL";
+  postingType: 'DEFAULT' | 'QUESTION' | 'POLL';
   resource: {
-    contentType: "VIDEO" | "URL" | "IMAGE" | "TEXT" | "FILE" | "OTHER";
+    contentType: 'VIDEO' | 'URL' | 'IMAGE' | 'TEXT' | 'FILE' | 'OTHER';
     data: string;
   };
-  state: "ACTIVE";
+  state: 'ACTIVE';
   text: string;
 }
 
@@ -725,17 +863,10 @@ export interface PrimeReplyMetaData {
 
 export interface PrimeReplyCreationAttributes {
   resource?: {
-    contentType:
-      | "VIDEO"
-      | "URL"
-      | "IMAGE"
-      | "TEXT"
-      | "FILE"
-      | "AUDIO"
-      | "OTHER";
+    contentType: 'VIDEO' | 'URL' | 'IMAGE' | 'TEXT' | 'FILE' | 'AUDIO' | 'OTHER';
     data: string;
   };
-  state: "ACTIVE";
+  state: 'ACTIVE';
   text: string;
 }
 
@@ -763,6 +894,8 @@ export interface PrimeResource {
   hasQuiz: boolean;
   hasToc: boolean;
   instructorNames: string[];
+  internalResourceId: string;
+  isExternalUrl: boolean;
   isDefault: boolean;
   locale: string;
   location: string;
@@ -784,6 +917,10 @@ export interface PrimeRoom {
   seatLimit: number;
   url: string;
   city: string;
+  // Present on the included room only when structured location is enabled on the
+  // account. Used to render the "country > state > city" geography breadcrumb.
+  countryName?: string;
+  stateName?: string;
 }
 
 export interface PrimeSearchResult {
@@ -932,6 +1069,8 @@ export interface PrimeUser {
   userUniqueId: string;
   account: PrimeAccount;
   manager: PrimeUser;
+  points: number;
+  rank: number;
 }
 
 export interface PrimeUserBadge {
@@ -1036,10 +1175,17 @@ export interface PrimeUserSkillInterest {
   userSkills: PrimeUserSkill[];
 }
 
-export interface PrimeUserStat {
+export interface PrimeUserRecommendationPreference {
   id: string;
-  _transient: any;
-  postCount: number;
+  type: string;
+  products: PrimeUserRecommendationCriteria[];
+  roles: PrimeUserRecommendationCriteria[];
+}
+
+export interface PrimeUserRecommendationCriteria {
+  id: string;
+  name: string;
+  levels: string[];
 }
 
 export interface PrimeUserStat {
@@ -1080,6 +1226,8 @@ export interface JsonApiResponse {
   discussionPostList: PrimeDiscussionPost[];
   dnd: PrimeDnd;
   dndList: PrimeDnd[];
+  externalLearning: PrimeExternalLearningSubmission;
+  externalLearningList: PrimeExternalLearningSubmission[];
   externalProfile: PrimeExternalProfile;
   externalProfileList: PrimeExternalProfile[];
   feedback: PrimeFeedback;
@@ -1124,6 +1272,7 @@ export interface JsonApiResponse {
   minimalAccountList: PrimeMinimalAccount[];
   multipleAttempt: PrimeMultipleAttempt;
   multipleAttemptList: PrimeMultipleAttempt[];
+  meta: object;
   note: PrimeNote;
   noteList: PrimeNote[];
   poll: PrimePoll;
@@ -1136,6 +1285,8 @@ export interface JsonApiResponse {
   ratingList: PrimeRating[];
   recommendation: PrimeRecommendation;
   recommendationList: PrimeRecommendation[];
+  recommendationProductList: PrimeUserRecommendationCriteria[];
+  recommendationRoleList: PrimeUserRecommendationCriteria[];
   reply: PrimeReply;
   replyList: PrimeReply[];
   reportAbuse: PrimeReportAbuse;
@@ -1150,6 +1301,7 @@ export interface JsonApiResponse {
   searchSnippetList: PrimeSearchSnippet[];
   sections: PrimeSections;
   sectionsList: PrimeSections[];
+  sessionConflictList: any;
   skill: PrimeSkill;
   skillList: PrimeSkill[];
   skillInterestSearchResult: PrimeSkillInterestSearchResult;
@@ -1183,12 +1335,20 @@ export interface JsonApiResponse {
   userSkill: PrimeUserSkill;
   userSkillList: PrimeUserSkill[];
   userSkillInterest: PrimeUserSkillInterest;
+  userRecommendationPreferences: PrimeUserRecommendationPreference;
   userSkillInterestList: PrimeUserSkillInterest[];
   userStat: PrimeUserStat;
   userStatList: PrimeUserStat[];
   resourceIdentifier: PrimeResourceIdentifier;
   resourceIdentifierList: PrimeResourceIdentifier[];
   links?: JsonApiResponseLinks;
+  leaderBoardUserList: PrimeUser[];
+  leaderBoardUser: PrimeUser;
+  gamificationSettingsList: PrimeGamificationSettings[];
+  loInterest: PrimeUserRegisterInterest;
+  tagList: any;
+  loEnrollmentMeta: loEnrollmentMeta;
+  menuList: PrimeMenu[];
 }
 
 export interface JsonApiResponseLinks {
@@ -1209,10 +1369,10 @@ export interface MaxPrice {
 }
 
 export interface PrimeExtension {
-  defaultScope: string,
-  id: string,
-  invocationType: string,
-  launchType: string,
+  defaultScope: string;
+  id: string;
+  invocationType: string;
+  launchType: string;
   url: string;
   localizedMetadata: PrimeExtensionLocalizationMetadata[];
   width?: string;
@@ -1229,4 +1389,104 @@ export interface PrimeExtensionLocalizationMetadata {
   locale: string;
   name: string;
   label: string;
+}
+
+export interface PrimeRecommendations {
+  id: string;
+  levels?: Array<string>;
+  name: string;
+}
+
+export interface PRLCriteriaAttributes {
+  enabled: boolean;
+  levelsEnabled: boolean;
+}
+export interface PrimeUserRecommendationPreferences {
+  id: string;
+  type?: string;
+  products?: Array<PrimeRecommendations>;
+  roles?: Array<PrimeRecommendations>;
+  skills?: Array<PrimeRecommendations>;
+}
+
+export interface PrimeRecommendationCriteriaStrip extends PrimeUserRecommendationPreferences {
+  stripType: string;
+}
+
+export interface PrimeGamificationSettings {
+  count: number;
+  description: string;
+  enabled: boolean;
+  name: string;
+  points: number;
+  type: string;
+}
+
+export interface PrimeUserRegisterInterest {
+  interested: boolean;
+  learningObject: PrimeLearningObject;
+  userId: string;
+}
+
+export interface PrimeJobAidTrainingMap {
+  resource: PrimeResource;
+  item: PrimeLearningObject;
+}
+
+export interface loEnrollmentMeta {
+  enrollable: boolean;
+  enrolled: boolean;
+}
+
+export interface PrimeMenu {
+  subMenus: PrimeMenu[];
+  id: string;
+  _transient: any;
+  description: string;
+  iconName: string;
+  isDefault: string;
+  pageType: string;
+  name: string;
+  order: string[];
+  pages: PrimePage[];
+  localizedMetadata: PrimeLocalizationMetadata[];
+  landingEntity: PrimePage;
+}
+
+export interface PrimePage {
+  id: string;
+  _transient?: any;
+  config?: string;
+  contentUrl?: string;
+  pathName?: string;
+  widgetCount?: number;
+  defaultLocale?: string;
+  pageType?: string;
+  type?: string;
+  isDefault?: boolean;
+  isHidden?: boolean;
+  isLandingEntity?: boolean;
+  localizedMetadata?: PrimeLocalizationMetadata[];
+}
+
+export interface PrimeTemplateConfig {
+  loCardConfig: {
+    showEnrollAction: boolean;
+    showSaveAction: boolean;
+    showAddToMyLearningAction: boolean;
+    showPublishedDueDateInfo: boolean;
+    showDescriptionInfo: boolean;
+    showAuthorNameInfo: boolean;
+    showCourseEffectivenessInfo: boolean;
+    showPrlInfo: boolean;
+    showRatingInfo: boolean;
+    showSkillsInfo: boolean;
+    showFormatInfo: boolean;
+    showDurationInfo: boolean;
+    showCompletionStatusInfo: boolean;
+  };
+  menuStyling: {
+    layout: string;
+    showIcons: boolean;
+  };
 }

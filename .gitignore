@@ -59,6 +59,7 @@ hs_err_pid*
 
 ### Maven ###
 target/
+OSGI-INF/
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
@@ -67,6 +68,7 @@ release.properties
 dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
+**/.m2/settings.xml
 
 
 ### Vault ###
@@ -85,7 +87,7 @@ buildNumber.properties
 
 # NPM
 node_modules/
-package-lock.json
+
 yarn.lock
 
 # Webpack
@@ -97,3 +99,18 @@ node/
 
 # Tests
 coverage/
+.DS_Store
+**/.DS_Store
+
+# Developer-local
+AGENTS.md
+CLAUDE.md
+.claude/
+.agents/
+.cursor/
+ui.frontend/ARCHITECTURE.md
+ui.frontend/ai/
+ui.frontend/docs/
+ui.frontend/memory-bank.md
+ui.frontend/memory-bank/
+
